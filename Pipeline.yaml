@@ -23,7 +23,7 @@ steps:
             - "SCCACHE_BUCKET"
             - "SCCACHE_ENDPOINT"
             - "SCCACHE_S3_USE_SSL"
-            - "RUSTC_WRAPPER=true"
+            - "RUSTC_WRAPPER"
   - label: "check, clippy & test - :rust: 1.46.0"
     if: build.branch == "complement"
     commands:
@@ -49,7 +49,7 @@ steps:
             - "SCCACHE_BUCKET"
             - "SCCACHE_ENDPOINT"
             - "SCCACHE_S3_USE_SSL"
-            - "RUSTC_WRAPPER=true"
+            - "RUSTC_WRAPPER"
   - label: "SyTest - :rust: nightly / :sled:"
     command:
       - "bash /bootstrap.sh conduit"
@@ -70,7 +70,7 @@ steps:
             - "SCCACHE_BUCKET"
             - "SCCACHE_ENDPOINT"
             - "SCCACHE_S3_USE_SSL"
-            - "RUSTC_WRAPPER=true"
+            - "RUSTC_WRAPPER"
       - artifacts#v1.2.0:
           upload: [ "logs/**/*.log", "logs/**/*.log.*", "logs/results.tap" ]
       - matrix-org/annotate:
@@ -106,4 +106,4 @@ steps:
             - "SCCACHE_BUCKET"
             - "SCCACHE_ENDPOINT"
             - "SCCACHE_S3_USE_SSL"
-            - "RUSTC_WRAPPER=true"
+            - "RUSTC_WRAPPER"
