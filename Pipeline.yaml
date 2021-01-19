@@ -49,16 +49,16 @@ steps:
           mount-buildkite-agent: false
           volumes: ["/var/lib/buildkite/cache:/cache"]
       - gencer/cache#v2.3.7:
-        backend: s3
-        key: "v1-cache-{{ runner.os }}-{{ checksum 'cargo.lock' }}"
-        s3:
-          bucket: "k8s-conduit-cache"
-        paths:
-          - '/root/.cargo/registry'
-          - 'target/build'
-          - 'target/deps'
-          - 'target/incremental'
-
+          backend: s3
+          key: "v1-cache-{{ runner.os }}-{{ checksum 'cargo.lock' }}"
+          s3:
+            bucket: "k8s-conduit-cache"
+          paths:
+            - '/root/.cargo/registry'
+            - 'target/build'
+            - 'target/deps'
+            - 'target/incremental'
+  - wait
   - label: "SyTest - :rust: nightly / :sled:"
     command:
       - "bash /bootstrap.sh conduit"
@@ -80,22 +80,22 @@ steps:
           path: "logs/annotate.md"
           style: "error"
       - gencer/cache#v2.3.7:
-        backend: s3
-        key: "v1-cache-{{ runner.os }}-{{ checksum 'cargo.lock' }}"
-        s3:
-          bucket: "k8s-conduit-cache"
-        paths:
-          - '/root/.cargo/registry'
-          - 'target/build'
-          - 'target/deps'
-          - 'target/incremental'
+          backend: s3
+          key: "v1-cache-{{ runner.os }}-{{ checksum 'cargo.lock' }}"
+          s3:
+            bucket: "k8s-conduit-cache"
+          paths:
+            - '/root/.cargo/registry'
+            - 'target/build'
+            - 'target/deps'
+            - 'target/incremental'
     retry:
       automatic:
         - exit_status: -1
           limit: 2
         - exit_status: 2
           limit: 2
-
+  - wait
   - label: 🧪 Complement
     soft_fail: true
     commands:
