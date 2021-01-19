@@ -30,13 +30,23 @@ steps:
   - label: "check, clippy & test - :rust: 1.47.0"
     commands:
       - cargo clippy --all -- -D warnings
-      - cargo test --all-features
+      # - cargo test --all-features # Disabled for now, until we have tests
       - cargo build
     retry:
       automatic: false
     env:
       CARGO_INCREMENTAL: false
     plugins:
+      - gencer/cache#v2.3.7:
+          backend: s3
+          key: "v1-cache-{{ runner.os }}-{{ checksum 'Cargo.lock' }}"
+          s3:
+            bucket: "k8s-conduit-cache"
+          paths:
+            - '/root/.cargo/registry'
+            - 'target/build'
+            - 'target/deps'
+            - 'target/incremental'
       - docker#v3.6.0:
           privileged: true
           image: "valkum/docker-rust-ci:1.47.0"
@@ -48,6 +58,11 @@ steps:
           init: false
           mount-buildkite-agent: false
           volumes: ["/var/lib/buildkite/cache:/cache"]
+  - wait
+  - label: "SyTest - :rust: nightly / :sled:"
+    command:
+      - "bash /bootstrap.sh conduit"
+    plugins:
       - gencer/cache#v2.3.7:
           backend: s3
           key: "v1-cache-{{ runner.os }}-{{ checksum 'cargo.lock' }}"
@@ -58,11 +73,6 @@ steps:
             - 'target/build'
             - 'target/deps'
             - 'target/incremental'
-  - wait
-  - label: "SyTest - :rust: nightly / :sled:"
-    command:
-      - "bash /bootstrap.sh conduit"
-    plugins:
       - docker#v3.6.0:
           image: "valkum/sytest-conduit:latest"
           propagate-environment: true
@@ -79,16 +89,6 @@ steps:
       - matrix-org/annotate:
           path: "logs/annotate.md"
           style: "error"
-      - gencer/cache#v2.3.7:
-          backend: s3
-          key: "v1-cache-{{ runner.os }}-{{ checksum 'cargo.lock' }}"
-          s3:
-            bucket: "k8s-conduit-cache"
-          paths:
-            - '/root/.cargo/registry'
-            - 'target/build'
-            - 'target/deps'
-            - 'target/incremental'
     retry:
       automatic:
         - exit_status: -1
