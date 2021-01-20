@@ -80,6 +80,8 @@ steps:
           init: false
           mount-buildkite-agent: false
           volumes: ["./logs:/logs", "/var/lib/buildkite/cache:/cache"]
+          environment:
+            - "SYTEST_PLUGINS=https://github.com/valkum/sytest_conduit/archive/master.tar.gz"
       - artifacts#v1.3.0:
           upload: [ "logs/**/*.log", "logs/**/*.log.*", "logs/results.tap" ]
       - matrix-org/annotate:
