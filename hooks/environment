@@ -7,3 +7,4 @@ set -euo pipefail
 export BUILDKITE_PLUGIN_CACHE_S3_ARGS="--endpoint-url=https://s3.fr-par.scw.cloud"
 export AWS_ACCESS_KEY_ID=$(cat /cfg/aws/access_key_id)
 export AWS_SECRET_ACCESS_KEY=$(cat /cfg/aws/secret_access_key)
+export AWS_DEFAULT_REGION=fr-par
