@@ -35,16 +35,16 @@ steps:
     retry:
       automatic: false
     plugins:
-      # - gencer/cache#v2.3.7:
-      #     backend: s3
-      #     key: "v1-cache-{{ runner.os }}-{{ checksum 'Cargo.lock' }}"
-      #     s3:
-      #       bucket: "k8s-conduit-cache"
-      #     paths:
-      #       - '/usr/local/cargo/registry'
-      #       - 'target/debug/build'
-      #       - 'target/debug/deps'
-      #       - 'target/debug/incremental'
+      - gencer/cache#v2.3.7:
+          backend: s3
+          key: "v1-cache-{{ runner.os }}-{{ checksum 'Cargo.lock' }}"
+          s3:
+            bucket: "k8s-conduit-cache"
+          paths:
+            - '/usr/local/cargo/registry'
+            - 'target/debug/build'
+            - 'target/debug/deps'
+            - 'target/debug/incremental'
       - docker#v3.6.0:
           image: "valkum/docker-rust-ci:1.47.0"
           propagate-environment: true
@@ -60,16 +60,16 @@ steps:
     command:
       - "bash /bootstrap.sh conduit"
     plugins:
-      # - gencer/cache#v2.3.7:
-      #     backend: s3
-      #     key: "v1-cache-{{ runner.os }}-{{ checksum 'cargo.lock' }}"
-      #     s3:
-      #       bucket: "k8s-conduit-cache"
-      #     paths:
-      #       - '/usr/local/cargo/registry'
-      #       - 'target/debug/build'
-      #       - 'target/debug/deps'
-      #       - 'target/debug/incremental'
+      - gencer/cache#v2.3.7:
+          backend: s3
+          key: "v1-cache-{{ runner.os }}-{{ checksum 'cargo.lock' }}"
+          s3:
+            bucket: "k8s-conduit-cache"
+          paths:
+            - '/usr/local/cargo/registry'
+            - 'target/debug/build'
+            - 'target/debug/deps'
+            - 'target/debug/incremental'
       - docker#v3.6.0:
           image: "valkum/sytest-conduit:latest"
           propagate-environment: true
@@ -100,6 +100,16 @@ steps:
       - "wget -N https://github.com/matrix-org/complement/archive/master.tar.gz && tar -xzf master.tar.gz"
       - "cd complement-master && COMPLEMENT_BASE_IMAGE=complement-conduit:latest go test -v ./tests"
     plugins:
+      - gencer/cache#v2.3.7:
+          backend: s3
+          key: "v1-cache-{{ runner.os }}-{{
+          s3:
+            bucket: "k8s-conduit-cache"
+          paths:
+            - '/usr/local/cargo/registry'
+            - 'target/debug/build'
+            - 'target/debug/deps'
+            - 'target/debug/incremental'
       - docker#v3.6.0:
           image: "valkum/complement:latest"
           mount-buildkite-agent: false
