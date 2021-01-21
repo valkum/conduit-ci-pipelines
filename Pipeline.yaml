@@ -40,6 +40,7 @@ steps:
           key: "v1-cache-{{ runner.os }}-{{ checksum 'Cargo.lock' }}"
           s3:
             bucket: "k8s-conduit-cache"
+            args: "--endpoint-url=https://s3.fr-par.scw.cloud"
           paths:
             - '/usr/local/cargo/registry'
             - 'target/debug/build'
@@ -65,6 +66,7 @@ steps:
           key: "v1-cache-{{ runner.os }}-{{ checksum 'cargo.lock' }}"
           s3:
             bucket: "k8s-conduit-cache"
+            args: "--endpoint-url=https://s3.fr-par.scw.cloud"
           paths:
             - '/usr/local/cargo/registry'
             - 'target/debug/build'
@@ -105,6 +107,7 @@ steps:
           key: "v1-cache-{{ runner.os }}-{{ checksum 'cargo.lock' }}"
           s3:
             bucket: "k8s-conduit-cache"
+            args: "--endpoint-url=https://s3.fr-par.scw.cloud"
           paths:
             - '/usr/local/cargo/registry'
             - 'target/debug/build'
