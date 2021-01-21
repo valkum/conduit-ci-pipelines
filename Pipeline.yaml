@@ -102,7 +102,7 @@ steps:
     plugins:
       - gencer/cache#v2.3.7:
           backend: s3
-          key: "v1-cache-{{ runner.os }}-{{
+          key: "v1-cache-{{ runner.os }}-{{ checksum 'cargo.lock' }}"
           s3:
             bucket: "k8s-conduit-cache"
           paths:
