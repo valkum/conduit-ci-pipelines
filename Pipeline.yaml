@@ -42,7 +42,7 @@ steps:
             bucket: "k8s-conduit-cache"
             args: "--endpoint-url=https://s3.fr-par.scw.cloud"
           paths:
-            - '/usr/local/cargo/registry'
+            - '/var/buildkite/cache/cargo/registry'
             - 'target/debug/build'
             - 'target/debug/deps'
             - 'target/debug/incremental'
@@ -55,7 +55,8 @@ steps:
           shell: ["-x", "-c"]
           init: false
           mount-buildkite-agent: false
-          volumes: ["/var/buildkite/cache/cargo/registry:/usr/local/cargo/registry"]
+          volumes: 
+            - "/var/buildkite/cache/cargo/registry:/usr/local/cargo/registry"
   - wait
   - label: "SyTest - :rust: nightly / :sled:"
     command:
@@ -68,7 +69,7 @@ steps:
             bucket: "k8s-conduit-cache"
             args: "--endpoint-url=https://s3.fr-par.scw.cloud"
           paths:
-            - '/usr/local/cargo/registry'
+            - '/var/buildkite/cache/cargo/registry'
             - 'target/debug/build'
             - 'target/debug/deps'
             - 'target/debug/incremental'
@@ -81,7 +82,9 @@ steps:
           shell: ["-x", "-c"]
           init: false
           mount-buildkite-agent: false
-          volumes: ["./logs:/logs", "/var/buildkite/cache/cargo/registry:/usr/local/cargo/registry"]
+          volumes: 
+            - "./logs:/logs"
+            - "/var/buildkite/cache/cargo/registry:/usr/local/cargo/registry"
           environment:
             - "PLUGINS=https://github.com/valkum/sytest_conduit/archive/master.tar.gz"
       - artifacts#v1.3.0:
@@ -109,7 +112,7 @@ steps:
             bucket: "k8s-conduit-cache"
             args: "--endpoint-url=https://s3.fr-par.scw.cloud"
           paths:
-            - '/usr/local/cargo/registry'
+            - '/var/buildkite/cache/cargo/registry'
             - 'target/debug/build'
             - 'target/debug/deps'
             - 'target/debug/incremental'
@@ -120,7 +123,8 @@ steps:
           # Complement uses Docker so pass through the docker socket. This means Complement shares
           # the hosts Docker.
           volumes:
-          - "/var/run/docker.sock:/var/run/docker.sock"
+            - "/var/run/docker.sock:/var/run/docker.sock"
+            - "/var/buildkite/cache/cargo/registry:/usr/local/cargo/registry"
           environment: 
             - "CI=true"
             - "COMPLEMENT_CA=true"
