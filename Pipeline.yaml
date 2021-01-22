@@ -63,7 +63,7 @@ steps:
     plugins:
       - valkum/cache#v2.3.8:
           backend: s3
-          key: "v1-cache-{{ runner.os }}-{{ checksum 'cargo.lock' }}"
+          key: "v1-cache-{{ runner.os }}-{{ checksum 'Cargo.lock' }}"
           s3:
             bucket: "k8s-conduit-cache"
             args: "--endpoint-url=https://s3.fr-par.scw.cloud"
@@ -104,7 +104,7 @@ steps:
     plugins:
       - valkum/cache#v2.3.8:
           backend: s3
-          key: "v1-cache-{{ runner.os }}-{{ checksum 'cargo.lock' }}"
+          key: "v1-cache-{{ runner.os }}-{{ checksum 'Cargo.lock' }}"
           s3:
             bucket: "k8s-conduit-cache"
             args: "--endpoint-url=https://s3.fr-par.scw.cloud"
