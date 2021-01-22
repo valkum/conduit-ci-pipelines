@@ -81,7 +81,7 @@ steps:
       - artifacts#v1.3.0:
           upload: [ "logs/**/*.log", "logs/**/*.log.*", "logs/results.tap" ]
           download: 
-            - "target/release/cond_test"
+            - "target/release/conduit"
           step: "build"
       - matrix-org/annotate:
           path: "logs/annotate.md"
@@ -112,5 +112,5 @@ steps:
             - "COMPLEMENT_CA=true"
       - artifacts#v1.3.0:
           download: 
-            - "target/release/cond_test"
+            - "target/release/conduit"
           step: "build"
