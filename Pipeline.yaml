@@ -43,9 +43,7 @@ steps:
             args: "--endpoint-url=https://s3.fr-par.scw.cloud"
           paths:
             - '/var/buildkite/cache/cargo/registry'
-            - 'target/debug/build'
-            - 'target/debug/deps'
-            - 'target/debug/incremental'
+            - 'target/debug/'
       - docker#v3.6.0:
           image: "valkum/docker-rust-ci:1.47.0"
           propagate-environment: true
@@ -70,9 +68,7 @@ steps:
             args: "--endpoint-url=https://s3.fr-par.scw.cloud"
           paths:
             - '/var/buildkite/cache/cargo/registry'
-            - 'target/debug/build'
-            - 'target/debug/deps'
-            - 'target/debug/incremental'
+            - 'target/debug/'
       - docker#v3.6.0:
           image: "valkum/sytest-conduit:latest"
           propagate-environment: true
@@ -113,9 +109,7 @@ steps:
             args: "--endpoint-url=https://s3.fr-par.scw.cloud"
           paths:
             - '/var/buildkite/cache/cargo/registry'
-            - 'target/debug/build'
-            - 'target/debug/deps'
-            - 'target/debug/incremental'
+            - 'target/debug/'
       - docker#v3.6.0:
           image: "valkum/complement:latest"
           mount-buildkite-agent: false
