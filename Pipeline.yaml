@@ -1,48 +1,19 @@
 steps:
-  # - label: "check, clippy & test - :rust: nightly"
-  #   commands:
-  #     - cargo clippy --all -- -D warnings
-  #     - cargo test --all-features
-  #   retry:
-  #     automatic: false
-  #   env:
-  #     CARGO_INCREMENTAL: false
-  #   plugins:
-  #     - docker#v3.6.0:
-  #         privileged: true
-  #         image: "valkum/docker-rust-nightly-sscache:nightly"
-  #         propagate-environment: true
-  #         always-pull: true
-  #         workdir: "/src"
-  #         entrypoint: '/bin/sh'
-  #         shell: ["-x", "-c"]
-  #         init: false
-  #         mount-buildkite-agent: false
-  #         volumes: ["/var/lib/buildkite/cache:/cache"]
-  #         environment: 
-  #           - "CARGO_INCREMENTAL"
-  #           - "AWS_ACCESS_KEY_ID"
-  #           - "AWS_SECRET_ACCESS_KEY"
-  #           - "SCCACHE_BUCKET"
-  #           - "SCCACHE_ENDPOINT"
-  #           - "SCCACHE_S3_USE_SSL"
-  #           - "RUSTC_WRAPPER"
-  - label: "check, clippy & test - :rust: 1.47.0"
+  - label: "check, clippy & (test) - :rust: 1.47.0"
     commands:
       - cargo clippy --all -- -D warnings
       # - cargo test --all-features # Disabled for now, until we have tests
-      - cargo build
     retry:
       automatic: false
     plugins:
-      - valkum/cache#v2.3.8:
+      - gencer/cache#v2.3.8:
           backend: s3
           key: "v1-cache-{{ runner.os }}-{{ checksum 'Cargo.lock' }}"
           s3:
             bucket: "k8s-conduit-cache"
             args: "--endpoint-url=https://s3.fr-par.scw.cloud"
           paths:
-            - '/var/buildkite/cache/cargo/registry'
+            - '.cargo_cachable_registry'
             - 'target/debug/'
       - docker#v3.6.0:
           image: "valkum/docker-rust-ci:1.47.0"
@@ -53,22 +24,47 @@ steps:
           shell: ["-x", "-c"]
           init: false
           mount-buildkite-agent: false
-          volumes: 
-            - "/var/buildkite/cache/cargo/registry:/usr/local/cargo/registry"
+          environment:
+            - "CARGO_HOME=/src/.cargo_cachable_registry"
   - wait
-  - label: "SyTest - :rust: nightly / :sled:"
-    command:
-      - "bash /bootstrap.sh conduit"
+  - label: "build - :rust: 1.47.0 / :sled:"
+    key: "build"
+    commands:
+      - cargo build --release --offline 
+    retry:
+      automatic: false
     plugins:
-      - valkum/cache#v2.3.8:
+      - gencer/cache#v2.3.8:
           backend: s3
           key: "v1-cache-{{ runner.os }}-{{ checksum 'Cargo.lock' }}"
           s3:
             bucket: "k8s-conduit-cache"
             args: "--endpoint-url=https://s3.fr-par.scw.cloud"
           paths:
-            - '/var/buildkite/cache/cargo/registry'
+            - '.cargo_cachable_registry'
             - 'target/debug/'
+      - docker#v3.6.0:
+          image: "valkum/docker-rust-ci:1.47.0"
+          propagate-environment: true
+          always-pull: true
+          workdir: "/src"
+          entrypoint: '/bin/sh'
+          shell: ["-x", "-c"]
+          init: false
+          mount-buildkite-agent: false
+          environment:
+            - "CARGO_HOME=/src/.cargo_cachable_registry"
+      - artifacts#v1.3.0:
+          upload: [ "target/release/conduit"]
+  - wait
+  - label: "SyTest - :rust: 1.47.0 / :sled:"
+    command:
+      - mkdir -p /app
+      - "cp target/release/conduit /app/conduit"
+      - "bash /bootstrap.sh conduit"
+    env:
+      CARGO_INCREMENTAL: 0
+    plugins:
       - docker#v3.6.0:
           image: "valkum/sytest-conduit:latest"
           propagate-environment: true
@@ -80,11 +76,13 @@ steps:
           mount-buildkite-agent: false
           volumes: 
             - "./logs:/logs"
-            - "/var/buildkite/cache/cargo/registry:/usr/local/cargo/registry"
           environment:
             - "PLUGINS=https://github.com/valkum/sytest_conduit/archive/master.tar.gz"
       - artifacts#v1.3.0:
           upload: [ "logs/**/*.log", "logs/**/*.log.*", "logs/results.tap" ]
+          download: 
+            - "target/release/cond_test"
+          step: "build"
       - matrix-org/annotate:
           path: "logs/annotate.md"
           style: "error"
@@ -94,31 +92,25 @@ steps:
           limit: 2
         - exit_status: 2
           limit: 2
-  - label: 🧪 Complement
+  - label: "🧪 Complement - :rust: 1.47.0 / :sled:"
     soft_fail: true
     commands:
       - docker build -t complement-conduit -f tests/Complement.Dockerfile .
       - "wget -N https://github.com/matrix-org/complement/archive/master.tar.gz && tar -xzf master.tar.gz"
       - "cd complement-master && COMPLEMENT_BASE_IMAGE=complement-conduit:latest go test -v ./tests"
     plugins:
-      - valkum/cache#v2.3.8:
-          backend: s3
-          key: "v1-cache-{{ runner.os }}-{{ checksum 'Cargo.lock' }}"
-          s3:
-            bucket: "k8s-conduit-cache"
-            args: "--endpoint-url=https://s3.fr-par.scw.cloud"
-          paths:
-            - '/var/buildkite/cache/cargo/registry'
-            - 'target/debug/'
       - docker#v3.6.0:
-          image: "valkum/complement:latest"
+          image: "matrixdotorg/complement:latest"
           mount-buildkite-agent: false
           publish: [ "8448:8448" ]
           # Complement uses Docker so pass through the docker socket. This means Complement shares
           # the hosts Docker.
           volumes:
             - "/var/run/docker.sock:/var/run/docker.sock"
-            - "/var/buildkite/cache/cargo/registry:/usr/local/cargo/registry"
           environment: 
             - "CI=true"
             - "COMPLEMENT_CA=true"
+      - artifacts#v1.3.0:
+          download: 
+            - "target/release/cond_test"
+          step: "build"
