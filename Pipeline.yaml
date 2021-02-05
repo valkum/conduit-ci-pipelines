@@ -15,7 +15,6 @@ steps:
           paths:
             - '.cargo_cachable_registry'
             - 'target/debug/'
-            - 'target/release/'
       - docker#v3.6.0:
           image: "valkum/docker-rust-ci:1.47.0"
           propagate-environment: true
@@ -37,13 +36,13 @@ steps:
     plugins:
       - gencer/cache#v2.3.8:
           backend: s3
-          key: "v1-cache-{{ runner.os }}-{{ checksum 'Cargo.lock' }}"
+          key: "v1-cache-release-{{ runner.os }}-{{ checksum 'Cargo.lock' }}"
           s3:
             bucket: "k8s-conduit-cache"
             args: "--endpoint-url=https://s3.fr-par.scw.cloud"
           paths:
             - '.cargo_cachable_registry'
-            - 'target/debug/'
+            - 'target/release/'
       - docker#v3.6.0:
           image: "valkum/docker-rust-ci:1.47.0"
           propagate-environment: true
