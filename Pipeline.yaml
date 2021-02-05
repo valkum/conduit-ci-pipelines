@@ -61,6 +61,7 @@ steps:
     command:
       - mkdir -p /app
       - "cp target/release/conduit /app/conduit"
+      - chmod +x /app/conduit
       - "bash /bootstrap.sh conduit"
     env:
       CARGO_INCREMENTAL: 0
