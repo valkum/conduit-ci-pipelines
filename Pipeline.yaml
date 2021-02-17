@@ -30,7 +30,7 @@ steps:
   - label: "build - :rust: 1.47.0 / :sled:"
     key: "build"
     commands:
-      - cargo build --release --offline 
+      - cargo build --release 
     retry:
       automatic: false
     plugins:
