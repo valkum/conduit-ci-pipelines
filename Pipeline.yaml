@@ -66,6 +66,11 @@ steps:
     env:
       CARGO_INCREMENTAL: 0
     plugins:
+      - artifacts#v1.3.0:
+          upload: [ "logs/**/*.log", "logs/**/*.log.*", "logs/results.tap" ]
+          download: 
+            - "target/release/conduit"
+          step: "build"
       - docker#v3.6.0:
           image: "valkum/sytest-conduit:latest"
           propagate-environment: true
@@ -79,11 +84,6 @@ steps:
             - "./logs:/logs"
           environment:
             - "PLUGINS=https://github.com/valkum/sytest_conduit/archive/master.tar.gz"
-      - artifacts#v1.3.0:
-          upload: [ "logs/**/*.log", "logs/**/*.log.*", "logs/results.tap" ]
-          download: 
-            - "target/release/conduit"
-          step: "build"
       - matrix-org/annotate:
           path: "logs/annotate.md"
           style: "error"
@@ -100,6 +100,11 @@ steps:
       - "wget -N https://github.com/matrix-org/complement/archive/master.tar.gz && tar -xzf master.tar.gz"
       - "cd complement-master && COMPLEMENT_BASE_IMAGE=complement-conduit:latest go test -v ./tests"
     plugins:
+      - artifacts#v1.3.0:
+          download: 
+            - from: "target/release/conduit"
+              to: "cached_target/release/conduit"
+          step: "build"
       - docker#v3.6.0:
           image: "matrixdotorg/complement:latest"
           mount-buildkite-agent: false
@@ -111,7 +116,3 @@ steps:
           environment: 
             - "CI=true"
             - "COMPLEMENT_CA=true"
-      - artifacts#v1.3.0:
-          download: 
-            - "target/release/conduit"
-          step: "build"
