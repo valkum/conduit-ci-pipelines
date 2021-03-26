@@ -1,5 +1,5 @@
 steps:
-  - label: "check, clippy & (test) - :rust: 1.47.0"
+  - label: "check, clippy & (test) - :rust: 1.50.0"
     commands:
       - cargo clippy --all -- -D warnings
       # - cargo test --all-features # Disabled for now, until we have tests
@@ -16,7 +16,7 @@ steps:
             - '.cargo_cachable_registry'
             - 'target/debug/'
       - docker#v3.6.0:
-          image: "valkum/docker-rust-ci:1.47.0"
+          image: "valkum/docker-rust-ci:1.50.1"
           propagate-environment: true
           always-pull: true
           workdir: "/src"
@@ -27,7 +27,7 @@ steps:
           environment:
             - "CARGO_HOME=/src/.cargo_cachable_registry"
   - wait
-  - label: "build - :rust: 1.47.0 / :sled:"
+  - label: "build - :rust: 1.50.0 / :sled:"
     key: "build"
     commands:
       - cargo build --release 
@@ -44,7 +44,7 @@ steps:
             - '.cargo_cachable_registry'
             - 'target/release/'
       - docker#v3.6.0:
-          image: "valkum/docker-rust-ci:1.47.0"
+          image: "valkum/docker-rust-ci:1.50.1"
           propagate-environment: true
           always-pull: true
           workdir: "/src"
@@ -57,7 +57,7 @@ steps:
       - artifacts#v1.3.0:
           upload: [ "target/release/conduit"]
   - wait
-  - label: "SyTest - :rust: 1.47.0 / :sled:"
+  - label: "SyTest - :rust: 1.50.0 / :sled:"
     command:
       - mkdir -p /app
       - "cp target/release/conduit /app/conduit"
@@ -93,7 +93,7 @@ steps:
           limit: 2
         - exit_status: 2
           limit: 2
-  - label: "🧪 Complement - :rust: 1.47.0 / :sled:"
+  - label: "🧪 Complement - :rust: 1.50.0 / :sled:"
     soft_fail: true
     commands:
       - docker build -t complement-conduit -f tests/Complement.Dockerfile .
@@ -107,6 +107,7 @@ steps:
           step: "build"
       - docker#v3.6.0:
           image: "matrixdotorg/complement:latest"
+          always-pull: true
           mount-buildkite-agent: false
           publish: [ "8448:8448" ]
           # Complement uses Docker so pass through the docker socket. This means Complement shares
